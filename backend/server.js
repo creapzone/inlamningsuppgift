@@ -80,12 +80,12 @@ function getAllTODOs() {
 }
 
 function getTODOById(id) {
-    let index = getTODOIndex(id) {
-        if (index === -1) {
-            return messageTODONotFound()
-        } else {
-            return messageTODOSuccess(inMemoryDatabase[index])
-        }
+    let index = getTODOIndex(id)
+
+    if (index === -1) {
+        return messageTODONotFound()
+    } else {
+        return messageTODOSuccess(inMemoryDatabase[index])
     }
 }
 
@@ -102,3 +102,48 @@ function updateTODO(TODOData) {
 function deleteTODO(index) {
     inMemoryDatabase.splice(index, 1)
 }
+
+function deleteTODOById(id) {
+    let index = getTODOIndex(id)
+
+    if (index === -1) {
+        return messageTODONotFound()
+    } else {
+        deleteTODO(index)
+        return messageTODOSuccess('User deleted!')
+    }
+}
+
+app.get('/', function (req, res) {
+    res.send('API is Alive')
+})
+
+app.post('/TODOs', function (req, res) {
+    createNewTODO(req.body)
+    res.json('Successfully created a new TODO')
+})
+
+app.get('/TODOs', function (req, res) {
+    res.json(getAllTODOs())
+})
+
+app.get('/TODOs/:id', function (req, res) {
+    const id = Number(req.params.id)
+    let response = getTODOById(id)
+    res.status(response.status).json(response.text)
+})
+
+app.put('/TODOs', function (req, res) {
+    let response = updateTODO(req.body)
+    console.log(response.status, response.text)
+    res.status(response.status).send(response.text)
+});
+
+app.delete('/TODOs/:id', function(req, res) {
+    let response = deleteTODOById(Number(req.params.id))
+    res.status(response.status).send(response.text)
+});
+
+app.listen(port, () => {
+    console.log(`The server is running on port ${port}`)
+})
